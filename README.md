@@ -11,7 +11,8 @@
 3. [Structure du projet](#structure-du-projet)
 4. [Étape 1 : Création du projet Spring Boot](#étape-1--création-du-projet-spring-boot)
 5. [Étape 2 : Création de l'entité JPA Compte](#étape-2--création-de-lentité-jpa-compte)
-
+6. [Étape 3 : Création de l'interface CompteRepository](#étape-3--création-de-linterface-compterepository)
+7. [Étape 4 : Test de la couche DAO](#étape-4--test-de-la-couche-dao)
 ---
 
 ## Objectif
@@ -78,3 +79,16 @@ L'interface `CompteRepository` hérite de `JpaRepository<Compte, String>`, ce qu
 
 Une méthode dérivée a été ajoutée :
 - `findByType(TypeCompte type)` : retourne les comptes d'un type donné. Spring Data génère la requête à partir du nom de la méthode.
+- ---
+
+## Étape 4 : Test de la couche DAO
+Pour tester la couche DAO, un bean `CommandLineRunner` a été ajouté dans la classe principale. Il s'exécute au démarrage de l'application et réalise les opérations suivantes :
+1. Insertion de 10 comptes avec un identifiant `UUID`, un solde aléatoire, la devise `MAD` et un type aléatoire (`COURANT` ou `EPARGNE`), en utilisant le pattern Builder de Lombok
+2. Affichage de tous les comptes avec `findAll()`
+3. Affichage des comptes épargne avec la méthode dérivée `findByType()`
+
+### Résultat dans la console
+![Affichage des comptes dans la console](captures/etape4-console.png)
+
+### Résultat dans la base H2
+![Liste des comptes dans H2](captures/etape4-h2-comptes.png)
