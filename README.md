@@ -13,6 +13,7 @@
 5. [Étape 2 : Création de l'entité JPA Compte](#étape-2--création-de-lentité-jpa-compte)
 6. [Étape 3 : Création de l'interface CompteRepository](#étape-3--création-de-linterface-compterepository)
 7. [Étape 4 : Test de la couche DAO](#étape-4--test-de-la-couche-dao)
+8. [Étape 5 : Création du Web service RESTful](#étape-5--création-du-web-service-restful)
 ---
 
 ## Objectif
@@ -32,6 +33,8 @@ src/main/java/ma/enset/bankaccountservice
 │   └── TypeCompte.java
 ├── repositories
 │   └── CompteRepository.java
+├── web
+│   └── CompteRestController.java
 └── BankAccountServiceApplication.java
 ---
 
@@ -92,3 +95,25 @@ Pour tester la couche DAO, un bean `CommandLineRunner` a été ajouté dans la c
 
 ### Résultat dans la base H2
 ![Liste des comptes dans H2](captures/etape4-h2-comptes.png)
+---
+
+## Étape 5 : Création du Web service RESTful
+Le contrôleur `CompteRestController` expose les opérations CRUD sur les comptes, sous le préfixe `/api` :
+
+| Méthode HTTP | URL | Description |
+|---|---|---|
+| `GET` | `/api/comptes` | Lister tous les comptes |
+| `GET` | `/api/comptes/{id}` | Consulter un compte |
+| `POST` | `/api/comptes` | Ajouter un compte (id et date générés automatiquement si absents) |
+| `PUT` | `/api/comptes/{id}` | Modifier un compte (seuls les champs fournis sont modifiés) |
+| `DELETE` | `/api/comptes/{id}` | Supprimer un compte |
+
+Annotations utilisées :
+- `@RestController` : les méthodes retournent directement des données au format JSON
+- `@RequestMapping("/api")` : préfixe commun à toutes les routes
+- `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping` : associent chaque méthode à une méthode HTTP
+- `@PathVariable` : récupère un paramètre de l'URL
+- `@RequestBody` : convertit le JSON reçu en objet `Compte`
+
+### Résultat : liste des comptes
+![GET /api/comptes](captures/etape5-get-comptes.png)
