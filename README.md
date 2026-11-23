@@ -26,11 +26,12 @@ Créer un micro-service permettant de gérer des comptes bancaires : couche DAO 
 ## Structure du projet
 src/main/java/ma/enset/bankaccountservice
 ├── entities
-│ └── Compte.java
+│   └── Compte.java
 ├── enums
-│ └── TypeCompte.java
+│   └── TypeCompte.java
+├── repositories
+│   └── CompteRepository.java
 └── BankAccountServiceApplication.java
-
 ---
 
 ## Étape 1 : Création du projet Spring Boot
@@ -70,3 +71,10 @@ Annotations utilisées :
 Au démarrage, Hibernate crée automatiquement la table `COMPTE` dans la base H2 :
 
 ![Table COMPTE dans la console H2](captures/etape2-table-compte.png)
+---
+
+## Étape 3 : Création de l'interface CompteRepository
+L'interface `CompteRepository` hérite de `JpaRepository<Compte, String>`, ce qui fournit automatiquement les opérations CRUD (`save`, `findAll`, `findById`, `deleteById`…) sans aucune implémentation.
+
+Une méthode dérivée a été ajoutée :
+- `findByType(TypeCompte type)` : retourne les comptes d'un type donné. Spring Data génère la requête à partir du nom de la méthode.
