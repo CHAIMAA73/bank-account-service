@@ -8,15 +8,15 @@
 ## Sommaire
 1. [Objectif](#objectif)
 2. [Technologies](#technologies)
-3. [Structure du projet](#structure-du-projet)
-4. [Étape 1 : Création du projet Spring Boot](#étape-1--création-du-projet-spring-boot)
-5. [Étape 2 : Création de l'entité JPA Compte](#étape-2--création-de-lentité-jpa-compte)
-6. [Étape 3 : Création de l'interface CompteRepository](#étape-3--création-de-linterface-compterepository)
-7. [Étape 4 : Test de la couche DAO](#étape-4--test-de-la-couche-dao)
-8. [Étape 5 : Création du Web service RESTful](#étape-5--création-du-web-service-restful)
-9. [Étape 6 : Test du web service avec Postman](#étape-6--test-du-web-service-avec-postman)
-10. [Étape 7 : Documentation Swagger](#étape-7--documentation-swagger)
-11. [Étape 8 : Spring Data Rest et projections](#étape-8--spring-data-rest-et-projections)
+3. [Étape 1 : Création du projet Spring Boot](#étape-1--création-du-projet-spring-boot)
+4. [Étape 2 : Création de l'entité JPA Compte](#étape-2--création-de-lentité-jpa-compte)
+5. [Étape 3 : Création de l'interface CompteRepository](#étape-3--création-de-linterface-compterepository)
+6. [Étape 4 : Test de la couche DAO](#étape-4--test-de-la-couche-dao)
+7. [Étape 5 : Création du Web service RESTful](#étape-5--création-du-web-service-restful)
+8. [Étape 6 : Test du web service avec Postman](#étape-6--test-du-web-service-avec-postman)
+9. [Étape 7 : Documentation Swagger](#étape-7--documentation-swagger)
+10. [Étape 8 : Spring Data Rest et projections](#étape-8--spring-data-rest-et-projections)
+11. [Étape 9 : Création des DTOs et Mappers](#étape-9--création-des-dtos-et-mappers)
 ---
 
 ## Objectif
@@ -30,17 +30,7 @@ Créer un micro-service permettant de gérer des comptes bancaires : couche DAO 
 - Springdoc OpenAPI 3.1.0 (Swagger UI)
 - - Spring Data Rest
 
-## Structure du projet
-src/main/java/ma/enset/bankaccountservice
-├── entities
-│   └── Compte.java
-├── enums
-│   └── TypeCompte.java
-├── repositories
-│   └── CompteRepository.java
-├── web
-│   └── CompteRestController.java
-└── BankAccountServiceApplication.java
+
 ---
 
 ## Étape 1 : Création du projet Spring Boot
@@ -283,3 +273,23 @@ public interface CompteProjection {
 
 #### Résultat : `/comptes?projection=p1`
 ![Projection p1](captures/etape8-projection-p1.png)
+---
+
+## Étape 9 : Création des DTOs et Mappers
+
+### Les DTOs (Data Transfer Objects)
+Les DTOs permettent de ne pas exposer directement les entités JPA aux clients de l'API et de contrôler les données échangées.
+
+| DTO | Rôle | Attributs |
+|---|---|---|
+| `CompteRequestDTO` | Données envoyées par le client (ajout / modification) | `solde`, `devise`, `type` |
+| `CompteResponseDTO` | Données renvoyées par le serveur | `id`, `dateCreation`, `solde`, `devise`, `type` |
+
+L'identifiant et la date de création ne figurent pas dans `CompteRequestDTO` car ils sont générés par le serveur.
+
+### Le Mapper
+La classe `CompteMapper` (annotée `@Component`) assure la conversion entre l'entité et les DTOs :
+- `fromCompte(Compte)` : convertit une entité `Compte` en `CompteResponseDTO`
+- `fromCompteRequestDTO(CompteRequestDTO)` : convertit un `CompteRequestDTO` en entité `Compte`
+
+La copie des attributs est réalisée avec `BeanUtils.copyProperties()` de Spring, qui copie les propriétés portant le même nom.
