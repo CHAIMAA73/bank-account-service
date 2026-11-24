@@ -18,6 +18,8 @@
 10. [Étape 8 : Spring Data Rest et projections](#étape-8--spring-data-rest-et-projections)
 11. [Étape 9 : Création des DTOs et Mappers](#étape-9--création-des-dtos-et-mappers)
 12.  [Étape 10 : Création de la couche Service (métier)](#étape-10--création-de-la-couche-service-métier)
+13.  [Étape 11 : Web service GraphQL](#étape-11--web-service-graphql)
+14. [Conclusion](#conclusion)
 ---
 
 ## Objectif
@@ -30,6 +32,7 @@ Créer un micro-service permettant de gérer des comptes bancaires : couche DAO 
 - Lombok
 - Springdoc OpenAPI 3.1.0 (Swagger UI)
 - - Spring Data Rest
+- - Spring for GraphQL (GraphiQL)
 
 
 ---
@@ -352,3 +355,134 @@ Elle définit les opérations métier :
 ```
 
 ![PUT via la couche service](captures/etape10-put-service.png)
+---
+
+## Étape 11 : Web service GraphQL
+
+### Principe
+Contrairement à REST (une URL par ressource, champs fixés par le serveur), **GraphQL** expose une **seule URL** (`/graphql`) et permet au **client de choisir exactement les champs** qu'il souhaite recevoir.
+
+### Configuration
+- Dépendance ajoutée : `spring-boot-starter-graphql`
+- Activation de l'interface de test **GraphiQL** dans `application.properties` :
+```properties
+spring.graphql.graphiql.enabled=true
+```
+L'interface est accessible sur `http://localhost:8081/graphiql`.
+
+### Le schéma GraphQL (`resources/graphql/schema.graphqls`)
+```graphql
+type Query {
+    comptes: [Compte]
+    compteById(id: String): Compte
+}
+
+type Mutation {
+    addCompte(compte: CompteDTO): Compte
+    updateCompte(id: String, compte: CompteDTO): Compte
+    deleteCompte(id: String): Boolean
+}
+
+type Compte {
+    id: String
+    dateCreation: String
+    solde: Float
+    devise: String
+    type: TypeCompte
+}
+
+input CompteDTO {
+    solde: Float
+    devise: String
+    type: TypeCompte
+}
+
+enum TypeCompte {
+    COURANT
+    EPARGNE
+}
+```
+- `Query` : opérations de lecture
+- `Mutation` : opérations d'ajout, de modification et de suppression
+- `type Compte` : données renvoyées (correspond à `CompteResponseDTO`)
+- `input CompteDTO` : données envoyées (correspond à `CompteRequestDTO`)
+
+### Le contrôleur `CompteGraphQLController`
+- `@Controller` : contrôleur GraphQL
+- `@QueryMapping` / `@MutationMapping` : associent chaque méthode à l'opération du schéma portant le même nom
+- `@Argument` : récupère les arguments de la requête GraphQL
+
+Le contrôleur GraphQL réutilise la **même couche service** (`CompteService`) que le contrôleur REST : la logique métier n'est pas dupliquée.
+
+### Tests avec GraphiQL
+
+#### Query : liste des comptes (seulement id, solde et type)
+```graphql
+query {
+  comptes {
+    id
+    solde
+    type
+  }
+}
+```
+![Query comptes](captures/etape11-query-comptes.png)
+
+#### Query : consultation d'un compte
+```graphql
+query {
+  compteById(id: "...") {
+    id
+    dateCreation
+    solde
+    devise
+    type
+  }
+}
+```
+![Query compteById](captures/etape11-query-compte-id.png)
+
+#### Mutation : ajout d'un compte
+```graphql
+mutation {
+  addCompte(compte: { solde: 45000, devise: "EUR", type: COURANT }) {
+    id
+    dateCreation
+    solde
+    devise
+    type
+  }
+}
+```
+![Mutation addCompte](captures/etape11-mutation-add.png)
+
+#### Mutation : modification d'un compte
+```graphql
+mutation {
+  updateCompte(id: "...", compte: { solde: 99000 }) {
+    id
+    solde
+    devise
+    type
+  }
+}
+```
+![Mutation updateCompte](captures/etape11-mutation-update.png)
+
+#### Mutation : suppression d'un compte
+```graphql
+mutation {
+  deleteCompte(id: "...")
+}
+```
+![Mutation deleteCompte](captures/etape11-mutation-delete.png)
+
+---
+
+## Conclusion
+Cette activité a permis de réaliser un micro-service complet de gestion de comptes bancaires avec Spring Boot, en suivant une architecture en couches :
+- une couche **DAO** basée sur Spring Data JPA et la base H2 ;
+- une couche **métier** (service) utilisant des **DTOs** et un **mapper** pour ne pas exposer directement les entités ;
+- une couche **web** exposant les mêmes fonctionnalités de plusieurs façons : un **web service RESTful** documenté avec **Swagger**, une API générée automatiquement par **Spring Data Rest** (avec pagination et **projections**), et un **web service GraphQL** permettant au client de choisir les données qu'il reçoit.
+
+Cette activité montre la complémentarité de REST et GraphQL, et l'intérêt de centraliser la logique métier dans une couche service réutilisable par les différents contrôleurs.
