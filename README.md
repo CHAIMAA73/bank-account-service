@@ -242,14 +242,6 @@ Toutes les opérations du contrôleur `CompteRestController` sont listées autom
 
 ![Swagger UI](captures/etape7-swagger-ui.png)
 
-### Test d'une opération depuis Swagger UI
-Test de `GET /api/comptes/{id}` avec le bouton **Try it out**, en renseignant l'identifiant d'un compte :
-
-![Requête Swagger](captures/etape7-swagger-requete.png)
-
-Le serveur répond avec le code `200` et les informations du compte :
-
-![Réponse Swagger](captures/etape7-swagger-reponse.png)
 
 ### Spécification OpenAPI (JSON)
 ![api-docs](captures/etape7-api-docs.png)
