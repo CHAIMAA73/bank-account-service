@@ -16,6 +16,7 @@
 8. [Étape 5 : Création du Web service RESTful](#étape-5--création-du-web-service-restful)
 9. [Étape 6 : Test du web service avec Postman](#étape-6--test-du-web-service-avec-postman)
 10. [Étape 7 : Documentation Swagger](#étape-7--documentation-swagger)
+11. [Étape 8 : Spring Data Rest et projections](#étape-8--spring-data-rest-et-projections)
 ---
 
 ## Objectif
@@ -27,6 +28,7 @@ Créer un micro-service permettant de gérer des comptes bancaires : couche DAO 
 - H2 Database
 - Lombok
 - Springdoc OpenAPI 3.1.0 (Swagger UI)
+- - Spring Data Rest
 
 ## Structure du projet
 src/main/java/ma/enset/bankaccountservice
@@ -245,3 +247,39 @@ Toutes les opérations du contrôleur `CompteRestController` sont listées autom
 
 ### Spécification OpenAPI (JSON)
 ![api-docs](captures/etape7-api-docs.png)
+---
+
+## Étape 8 : Spring Data Rest et projections
+
+### Exposition automatique du repository
+La dépendance **Spring Data Rest** (`spring-boot-starter-data-rest`) permet d'exposer automatiquement un repository Spring Data sous forme d'API REST, sans écrire de contrôleur.
+
+L'interface `CompteRepository` a été annotée :
+- `@RepositoryRestResource` : expose le repository sur l'URL `/comptes`
+- `@RestResource(path = "/byType")` avec `@Param("t")` : expose la méthode `findByType` sur `/comptes/search/byType?t=...`
+
+Les réponses sont au format **HAL** (`_embedded`, `_links`, `page`) et supportent la pagination.
+
+#### Liste des comptes : `/comptes`
+![Spring Data Rest - comptes](captures/etape8-data-rest-comptes.png)
+
+#### Recherche par type : `/comptes/search/byType?t=EPARGNE`
+![Spring Data Rest - byType](captures/etape8-data-rest-bytype.png)
+
+#### Pagination : `/comptes?page=0&size=3`
+![Spring Data Rest - pagination](captures/etape8-data-rest-pagination.png)
+
+### Projections
+Une projection permet de choisir les champs retournés par l'API sans modifier l'entité. L'interface `CompteProjection` définit la projection `p1`, qui ne retourne que l'identifiant, le solde et le type du compte :
+
+```java
+@Projection(types = Compte.class, name = "p1")
+public interface CompteProjection {
+    String getId();
+    Double getSolde();
+    TypeCompte getType();
+}
+```
+
+#### Résultat : `/comptes?projection=p1`
+![Projection p1](captures/etape8-projection-p1.png)
