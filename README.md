@@ -17,6 +17,7 @@
 9. [Étape 7 : Documentation Swagger](#étape-7--documentation-swagger)
 10. [Étape 8 : Spring Data Rest et projections](#étape-8--spring-data-rest-et-projections)
 11. [Étape 9 : Création des DTOs et Mappers](#étape-9--création-des-dtos-et-mappers)
+12.  [Étape 10 : Création de la couche Service (métier)](#étape-10--création-de-la-couche-service-métier)
 ---
 
 ## Objectif
@@ -293,3 +294,61 @@ La classe `CompteMapper` (annotée `@Component`) assure la conversion entre l'en
 - `fromCompteRequestDTO(CompteRequestDTO)` : convertit un `CompteRequestDTO` en entité `Compte`
 
 La copie des attributs est réalisée avec `BeanUtils.copyProperties()` de Spring, qui copie les propriétés portant le même nom.
+---
+
+## Étape 10 : Création de la couche Service (métier)
+
+### Architecture en couches
+Une couche service a été ajoutée entre le contrôleur et le repository :
+
+```
+Contrôleur (web)  →  Service (métier)  →  Repository (DAO)  →  Base H2
+```
+
+Le contrôleur ne communique plus directement avec le repository : il délègue tous les traitements au service et échange uniquement des **DTOs** avec le client.
+
+### L'interface `CompteService`
+Elle définit les opérations métier :
+
+| Méthode | Description |
+|---|---|
+| `getComptes()` | Retourne la liste des comptes |
+| `getCompte(String id)` | Retourne un compte par son identifiant |
+| `addCompte(CompteRequestDTO)` | Ajoute un compte |
+| `updateCompte(String id, CompteRequestDTO)` | Modifie un compte (seuls les champs fournis sont modifiés) |
+| `deleteCompte(String id)` | Supprime un compte |
+
+### L'implémentation `CompteServiceImpl`
+- `@Service` : déclare la classe comme bean de la couche métier
+- `@Transactional` : chaque méthode s'exécute dans une transaction (rollback en cas d'erreur)
+- Le service génère l'identifiant (`UUID`) et la date de création lors de l'ajout
+- Les conversions entre entités et DTOs sont réalisées avec `CompteMapper`
+
+### Modification du contrôleur
+`CompteRestController` utilise désormais `CompteService` au lieu de `CompteRepository` : il reçoit des `CompteRequestDTO` et renvoie des `CompteResponseDTO`.
+
+### Tests avec Postman
+
+#### Ajout d'un compte via le service
+`POST http://localhost:8081/api/comptes`
+
+```json
+{
+  "solde": 60000,
+  "devise": "MAD",
+  "type": "EPARGNE"
+}
+```
+
+![POST via la couche service](captures/etape10-post-service.png)
+
+#### Modification d'un compte via le service
+`PUT http://localhost:8081/api/comptes/{id}`
+
+```json
+{
+  "solde": 80000
+}
+```
+
+![PUT via la couche service](captures/etape10-put-service.png)
