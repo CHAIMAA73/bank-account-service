@@ -14,6 +14,7 @@
 6. [Étape 3 : Création de l'interface CompteRepository](#étape-3--création-de-linterface-compterepository)
 7. [Étape 4 : Test de la couche DAO](#étape-4--test-de-la-couche-dao)
 8. [Étape 5 : Création du Web service RESTful](#étape-5--création-du-web-service-restful)
+9. [Étape 6 : Test du web service avec Postman](#étape-6--test-du-web-service-avec-postman)
 ---
 
 ## Objectif
@@ -117,3 +118,103 @@ Annotations utilisées :
 
 ### Résultat : liste des comptes
 ![GET /api/comptes](captures/etape5-get-comptes.png)
+---
+
+## Étape 6 : Test du web service avec Postman
+Les différentes opérations du web service ont été testées avec le client REST **Postman**.
+
+### GET – Liste des comptes
+`GET http://localhost:8081/api/comptes`
+
+![GET liste des comptes](captures/etape6-get-all.png)
+
+### GET – Consultation d'un compte
+`GET http://localhost:8081/api/comptes/{id}`
+
+![GET compte par id](captures/etape6-get-id.png)
+
+### POST – Ajout d'un compte
+`POST http://localhost:8081/api/comptes`
+
+Corps de la requête :
+```json
+{
+  "solde": 50000,
+  "devise": "MAD",
+  "type": "COURANT"
+}
+```
+L'identifiant et la date de création sont générés automatiquement.
+
+![POST ajout d'un compte](captures/etape6-post.png)
+
+### PUT – Modification d'un compte
+`PUT http://localhost:8081/api/comptes/{id}`
+
+Corps de la requête :
+```json
+{
+  "solde": 75000,
+  "devise": "EUR"
+}
+```
+Seuls les champs envoyés sont modifiés ; le type du compte reste inchangé.
+
+![PUT modification d'un compte](captures/etape6-put.png)
+
+### DELETE – Suppression d'un compte
+`DELETE http://localhost:8081/api/comptes/{id}`
+
+Le compte est supprimé (statut `200 OK`) et n'apparaît plus dans la liste.
+
+![DELETE suppression d'un compte](captures/etape6-delete.png)
+---
+
+## Étape 6 : Test du web service avec Postman
+Les différentes opérations du web service ont été testées avec le client REST **Postman**.
+
+### GET – Liste des comptes
+`GET http://localhost:8081/api/comptes`
+
+![GET liste des comptes](captures/etape6-get-all.png)
+
+### GET – Consultation d'un compte
+`GET http://localhost:8081/api/comptes/{id}`
+
+![GET compte par id](captures/etape6-get-id.png)
+
+### POST – Ajout d'un compte
+`POST http://localhost:8081/api/comptes`
+
+Corps de la requête :
+```json
+{
+  "solde": 50000,
+  "devise": "MAD",
+  "type": "COURANT"
+}
+```
+L'identifiant et la date de création sont générés automatiquement.
+
+![POST ajout d'un compte](captures/etape6-post.png)
+
+### PUT – Modification d'un compte
+`PUT http://localhost:8081/api/comptes/{id}`
+
+Corps de la requête :
+```json
+{
+  "solde": 75000,
+  "devise": "EUR"
+}
+```
+Seuls les champs envoyés sont modifiés ; le type du compte reste inchangé.
+
+![PUT modification d'un compte](captures/etape6-put.png)
+
+### DELETE – Suppression d'un compte
+`DELETE http://localhost:8081/api/comptes/{id}`
+
+Le compte est supprimé (statut `200 OK`) et n'apparaît plus dans la liste.
+
+![DELETE suppression d'un compte](captures/etape6-delete.png)
