@@ -15,6 +15,7 @@
 7. [Étape 4 : Test de la couche DAO](#étape-4--test-de-la-couche-dao)
 8. [Étape 5 : Création du Web service RESTful](#étape-5--création-du-web-service-restful)
 9. [Étape 6 : Test du web service avec Postman](#étape-6--test-du-web-service-avec-postman)
+10. [Étape 7 : Documentation Swagger](#étape-7--documentation-swagger)
 ---
 
 ## Objectif
@@ -25,6 +26,7 @@ Créer un micro-service permettant de gérer des comptes bancaires : couche DAO 
 - Spring Boot (Web, Data JPA)
 - H2 Database
 - Lombok
+- Springdoc OpenAPI 3.1.0 (Swagger UI)
 
 ## Structure du projet
 src/main/java/ma/enset/bankaccountservice
@@ -218,3 +220,36 @@ Seuls les champs envoyés sont modifiés ; le type du compte reste inchangé.
 Le compte est supprimé (statut `200 OK`) et n'apparaît plus dans la liste.
 
 ![DELETE suppression d'un compte](captures/etape6-delete.png)
+---
+
+## Étape 7 : Documentation Swagger
+La documentation de l'API REST est générée automatiquement grâce à la dépendance **springdoc-openapi** (version 3.x, compatible avec Spring Boot 4) :
+
+```xml
+<dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    <version>3.1.0</version>
+</dependency>
+```
+
+Springdoc analyse les contrôleurs au démarrage de l'application et génère :
+- la spécification **OpenAPI** au format JSON : `http://localhost:8081/v3/api-docs`
+- l'interface graphique **Swagger UI** : `http://localhost:8081/swagger-ui.html`
+
+### Interface Swagger UI
+Toutes les opérations du contrôleur `CompteRestController` sont listées automatiquement :
+
+![Swagger UI](captures/etape7-swagger-ui.png)
+
+### Test d'une opération depuis Swagger UI
+Test de `GET /api/comptes/{id}` avec le bouton **Try it out**, en renseignant l'identifiant d'un compte :
+
+![Requête Swagger](captures/etape7-swagger-requete.png)
+
+Le serveur répond avec le code `200` et les informations du compte :
+
+![Réponse Swagger](captures/etape7-swagger-reponse.png)
+
+### Spécification OpenAPI (JSON)
+![api-docs](captures/etape7-api-docs.png)
